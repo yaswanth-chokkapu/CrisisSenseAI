@@ -14,6 +14,7 @@ import { AlertSendingScreen } from './src/screens/AlertSendingScreen';
 import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
 import { WitnessScreen } from './src/screens/WitnessScreen';
 import { VoiceDetectionScreen } from './src/screens/VoiceDetectionScreen';
+import { HistoryScreen } from './src/screens/HistoryScreen';
 
 // Import Theme/Data
 import { theme } from './src/constants/theme';
@@ -35,12 +36,6 @@ const ContactsScreen = () => (
   </View>
 );
 
-const HistoryScreen = () => (
-  <View style={tabStyles.container}>
-    <Text style={tabStyles.title}>Alert History</Text>
-    <Text style={{color: theme.colors.textSecondary}}>No past alerts.</Text>
-  </View>
-);
 
 const SettingsScreen = () => (
   <View style={tabStyles.container}>

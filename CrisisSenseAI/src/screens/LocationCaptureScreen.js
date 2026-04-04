@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { theme } from '../constants/theme';
 import { useLocation } from '../hooks/useLocation';
 
-export const LocationCaptureScreen = ({ navigation }) => {
+export const LocationCaptureScreen = ({ route, navigation }) => {
   const { location, errorMsg, fetchLocation } = useLocation();
   const [displayCoords, setDisplayCoords] = useState(null);
 
@@ -13,7 +13,7 @@ export const LocationCaptureScreen = ({ navigation }) => {
       const loc = await fetchLocation();
       setDisplayCoords(loc);
       timeout = setTimeout(() => {
-        navigation.replace('AlertSending');
+        navigation.replace('AlertSending', route.params);
       }, 1500);
     };
     getLoc();

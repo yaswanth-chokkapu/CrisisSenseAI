@@ -3,6 +3,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { theme } from '../constants/theme';
 import { ChecklistItem } from '../components/ChecklistItem';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { MOCK_HOSPITALS } from '../constants/mockData';
 
 const TASKS = [
   "Contacting emergency services",
@@ -11,11 +14,28 @@ const TASKS = [
   "Sharing live location"
 ];
 
-export const AlertSendingScreen = ({ navigation }) => {
+export const AlertSendingScreen = ({ route, navigation }) => {
   const [completedItems, setCompletedItems] = useState(0);
   const progress = useSharedValue(0);
 
   useEffect(() => {
+    // Send alert to Firebase in the background
+    const sendAlert = async () => {
+      try {
+        const hospital = MOCK_HOSPITALS[0];
+        await addDoc(collection(db, 'alerts'), {
+          ...route?.params,
+          notifiedHospital: hospital.name,
+          hospitalDistance: hospital.distance,
+          status: 'dispatched',
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.warn('Failed to send alert to Firebase:', e);
+      }
+    };
+    sendAlert();
+
     let interval = setInterval(() => {
       setCompletedItems(prev => {
         if (prev < TASKS.length) {
@@ -24,7 +44,7 @@ export const AlertSendingScreen = ({ navigation }) => {
         }
         clearInterval(interval);
         setTimeout(() => {
-          navigation.replace('ConfirmationScreen');
+          navigation.replace('ConfirmationScreen', route ? route.params : {});
         }, 500);
         return prev;
       });
