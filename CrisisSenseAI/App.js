@@ -15,6 +15,7 @@ import { ConfirmationScreen } from './src/screens/ConfirmationScreen';
 import { WitnessScreen } from './src/screens/WitnessScreen';
 import { VoiceDetectionScreen } from './src/screens/VoiceDetectionScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
+import { ContactsScreen } from './src/screens/ContactsScreen';
 
 // Import Theme/Data
 import { theme } from './src/constants/theme';
@@ -24,18 +25,6 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Mock Tab Screens
-const ContactsScreen = () => (
-  <View style={tabStyles.container}>
-    <Text style={tabStyles.title}>Emergency Contacts</Text>
-    {MOCK_CONTACTS.map((c, i) => (
-      <View key={i} style={tabStyles.card}>
-        <Text style={tabStyles.name}>{c.name}</Text>
-        <Text style={tabStyles.phone}>{c.phone}</Text>
-      </View>
-    ))}
-  </View>
-);
-
 
 const SettingsScreen = () => (
   <View style={tabStyles.container}>

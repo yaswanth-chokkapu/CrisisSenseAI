@@ -6,6 +6,7 @@ import { ChecklistItem } from '../components/ChecklistItem';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { MOCK_HOSPITALS } from '../constants/mockData';
+import { sendSilentSMSFallback } from '../services/smsService';
 
 const TASKS = [
   "Contacting emergency services",
@@ -23,15 +24,19 @@ export const AlertSendingScreen = ({ route, navigation }) => {
     const sendAlert = async () => {
       try {
         const hospital = MOCK_HOSPITALS[0];
+        const deleteAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
         await addDoc(collection(db, 'alerts'), {
           ...route?.params,
           notifiedHospital: hospital.name,
           hospitalDistance: hospital.distance,
           status: 'dispatched',
-          timestamp: serverTimestamp()
+          timestamp: serverTimestamp(),
+          deleteAt: deleteAt
         });
       } catch (e) {
         console.warn('Failed to send alert to Firebase:', e);
+        // Fallback to silent SMS
+        await sendSilentSMSFallback(route?.params);
       }
     };
     sendAlert();

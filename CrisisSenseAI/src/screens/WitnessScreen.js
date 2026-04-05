@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../constants/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
+import { analyzeIncidentImage } from '../services/aiVisionService';
 
 const INCIDENT_TYPES = [
   { id: 'medical', label: 'Medical', icon: 'medkit-outline', color: '#EF4444' },
@@ -29,6 +30,8 @@ export const WitnessScreen = ({ navigation }) => {
   const [voiceAdded, setVoiceAdded] = useState(false);
   const [voiceUri, setVoiceUri] = useState(null);
   const [recording, setRecording] = useState(null);
+  
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleReport = () => {
     navigation.navigate('LocationCapture', { 
@@ -52,12 +55,60 @@ export const WitnessScreen = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
+      base64: true,
     });
 
+    handleImageResult(result);
+  };
+
+  const takePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      alert("You need to grant camera permissions to take a photo.");
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+      base64: true,
+    });
+
+    handleImageResult(result);
+  };
+
+  const handleImageResult = async (result) => {
     if (!result.canceled) {
       setPhotoUri(result.assets[0].uri);
       setPhotoAdded(true);
+      
+      const base64Data = result.assets[0].base64;
+      if (base64Data) {
+        setIsAnalyzing(true);
+        const aiData = await analyzeIncidentImage(base64Data);
+        setIsAnalyzing(false);
+        
+        if (aiData) {
+          if (aiData.incidentType) setSelectedType(aiData.incidentType);
+          if (aiData.riskLevel) setRiskLevel(aiData.riskLevel);
+          if (aiData.summary) setDescription(aiData.summary);
+        }
+      }
     }
+  };
+
+  const handleAddPhoto = () => {
+    Alert.alert(
+      "Add Photo",
+      "Choose a photo source",
+      [
+        { text: "Camera", onPress: takePhoto },
+        { text: "Gallery", onPress: pickImage },
+        { text: "Cancel", style: "cancel" }
+      ]
+    );
   };
 
   const toggleRecording = async () => {
@@ -166,7 +217,7 @@ export const WitnessScreen = ({ navigation }) => {
             <View style={styles.mediaContainer}>
               <TouchableOpacity 
                 style={[styles.mediaButton, photoAdded && styles.mediaButtonActive]}
-                onPress={pickImage}
+                onPress={handleAddPhoto}
               >
                 <Ionicons name="camera-outline" size={24} color={photoAdded ? theme.colors.primary : theme.colors.textSecondary} />
                 <Text style={[styles.mediaText, photoAdded && styles.mediaTextActive]}>
@@ -203,6 +254,13 @@ export const WitnessScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.removeImage} onPress={() => { setPhotoUri(null); setPhotoAdded(false); }}>
                   <Ionicons name="close-circle" size={24} color={theme.colors.error} />
                 </TouchableOpacity>
+              </View>
+            )}
+            
+            {isAnalyzing && (
+              <View style={styles.analyzingContainer}>
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <Text style={styles.analyzingText}>AI is analyzing the crisis...</Text>
               </View>
             )}
           </View>
@@ -374,6 +432,20 @@ const styles = StyleSheet.create({
     right: -10,
     backgroundColor: '#000',
     borderRadius: 12,
+  },
+  analyzingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(230, 57, 70, 0.1)',
+    padding: theme.spacing.medium,
+    borderRadius: theme.borderRadius.card,
+    marginBottom: theme.spacing.medium,
+  },
+  analyzingText: {
+    color: theme.colors.primary,
+    marginLeft: theme.spacing.small,
+    fontWeight: 'bold',
+    fontSize: theme.typography.sizes.small,
   },
   reportButton: {
     backgroundColor: theme.colors.primary,
