@@ -178,11 +178,13 @@ Contributions are welcome! Feel free to fork the repo and submit a pull request.
 This project is licensed under the MIT License.
 
 
-<img width="720" height="1612" alt="image" src="https://github.com/user-attachments/assets/f4a68e7d-d3c3-4243-984c-e695cd50c298" />
+<img width="360" height="720" alt="image" src="https://github.com/user-attachments/assets/f4a68e7d-d3c3-4243-984c-e695cd50c298" />
 
-<img width="720" height="1612" alt="image" src="https://github.com/user-attachments/assets/6d5016c6-bc21-40d8-97b6-1a68134acf0a" />
+<img width="360" height="720" alt="image" src="https://github.com/user-attachments/assets/6d5016c6-bc21-40d8-97b6-1a68134acf0a" />
 
-<img width="720" height="1612" alt="image" src="https://github.com/user-attachments/assets/a79a13ad-6247-4b2d-85f6-98bedeb6145e" />
+<img width="360" height="720" alt="image" src="https://github.com/user-attachments/assets/a79a13ad-6247-4b2d-85f6-98bedeb6145e" />
+
+<img width="360" height="720" alt="image" src="https://github.com/user-attachments/assets/9f5f5455-9178-4784-ab8d-5a7f15f1379c" />
 
 
 
