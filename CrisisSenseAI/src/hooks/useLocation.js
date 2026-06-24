@@ -1,35 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import * as Location from 'expo-location';
-import { DEFAULT_LOCATION } from '../constants/mockData';
 
 export const useLocation = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const fetchLocation = async () => {
+  const fetchLocation = useCallback(async () => {
+    setErrorMsg(null);
+
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Location unavailable — using last known');
-        setLocation(DEFAULT_LOCATION);
-        return DEFAULT_LOCATION;
+        setLocation(null);
+        setErrorMsg('Location permission is required to send an emergency alert.');
+        return null;
       }
 
-      let loc = await Location.getCurrentPositionAsync({});
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
       const result = {
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         timestamp: loc.timestamp,
-        accuracy: loc.coords.accuracy,
+        accuracy: loc.coords.accuracy ?? null,
       };
       setLocation(result);
       return result;
-    } catch (error) {
-      setErrorMsg('Location unavailable — using last known');
-      setLocation(DEFAULT_LOCATION);
-      return DEFAULT_LOCATION;
+    } catch {
+      setLocation(null);
+      setErrorMsg('Unable to obtain your location. Please retry or call emergency services.');
+      return null;
     }
-  };
+  }, []);
 
   return { location, errorMsg, fetchLocation };
 };

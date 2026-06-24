@@ -72,7 +72,10 @@ export const VoiceDetectionScreen = ({ navigation }) => {
               </Text>
             </Text>
             <Text style={styles.cardText}>
-              Keyword detected: <Text style={{ color: theme.colors.textPrimary }}>"{result?.keyword}"</Text>
+              Keyword detected:{' '}
+              <Text style={{ color: theme.colors.textPrimary }}>
+                {result?.keyword}
+              </Text>
             </Text>
             
             <UrgencyMeter level={result?.level || 0} />
